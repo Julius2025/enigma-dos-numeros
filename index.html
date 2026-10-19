@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enigma dos Números - Desafio Matemático</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct: #22c55e;
+      --wrong: #ef4444;
+      --gold: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      width: 100%;
+      max-width: 650px;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+      border: 1px solid #334155;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      background: #334155;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .streak-badge {
+      color: var(--gold);
+    }
+
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      background: #334155;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: bold;
+    }
+
+    /* Timer */
+    .timer-container {
+      width: 100%;
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: var(--correct);
+      transition: width 0.1s linear, background-color 0.3s;
+    }
+
+    /* Question Box */
+    .question-category {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    .svg-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
+      min-height: 140px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .opt-btn {
+      background: #334155;
+      border: 2px solid transparent;
+      color: var(--text);
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .opt-btn:hover:not(:disabled) {
+      background: #475569;
+      border-color: var(--accent);
+    }
+
+    .opt-btn.correct {
+      background: var(--correct) !important;
+      color: #fff;
+    }
+
+    .opt-btn.wrong {
+      background: var(--wrong) !important;
+      color: #fff;
+    }
+
+    .site-credit {
+      border-top: 1px solid #334155;
+      margin-top: 16px;
+      padding-top: 12px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* Achievements section */
+    .achievements-box {
+      border-top: 1px solid #334155;
+      padding-top: 16px;
+      margin-top: 20px;
+    }
+
+    .achievements-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .achievements-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      opacity: 0.4;
+      filter: grayscale(1);
+      transition: all 0.3s;
+    }
+
+    .badge-item.unlocked {
+      opacity: 1;
+      filter: none;
+      border-color: var(--gold);
+      color: #fff;
+    }
+
+    /* Feedback & Next Button */
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 40px;
+    }
+
+    .feedback-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .btn-next {
+      background: var(--accent);
+      color: #0f172a;
+      font-weight: 700;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .btn-next:hover {
+      background: var(--accent-hover);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="stats">
+      <div class="badge">Pontos: <span id="score">0</span></div>
+      <div class="badge streak-badge">🔥 Combo: <span id="streak">0</span></div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-classic" onclick="setMode('classic')">Livre</button>
+      <button class="mode-btn" id="btn-time" onclick="setMode('time')">⏱️ Time Attack</button>
+    </div>
+  </header>
+
+  <div class="timer-container" id="timer-wrap" style="display: none;">
+    <div class="timer-bar" id="timer-bar"></div>
+  </div>
+
+  <div class="question-category" id="cat-label">Categoria</div>
+  <div class="question-text" id="question-text">Carregando desafio...</div>
+
+  <div class="svg-container" id="svg-wrap"></div>
+
+  <div class="options-grid" id="options-grid"></div>
+
+  <div class="footer-actions">
+    <div class="feedback-text" id="feedback"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Próximo Enigma ➔</button>
+  </div>
+
+  <div class="achievements-box">
+    <div class="achievements-title">Conquistas Desbloqueadas</div>
+    <div class="achievements-list" id="achievements-list"></div>
+  </div>
+</div>
+  <footer class="site-credit">Trabalho escolar • Criado por Julia Kellen</footer>
+</div>
+
+<script>
+  const challenges = [
+    {
+      category: "Geometria & Lógica Espacial",
+      text: "Quantos triângulos existem no total na figura geométrica abaixo?",
+      svg: `
+        <svg width="180" height="130" viewBox="0 0 180 130">
+          <polygon points="90,15 15,115 165,115" fill="none" stroke="#38bdf8" stroke-width="3"/>
+          <line x1="90" y1="15" x2="90" y2="115" stroke="#38bdf8" stroke-width="2"/>
+          <line x1="52" y1="65" x2="128" y2="65" stroke="#38bdf8" stroke-width="2"/>
+        </svg>
+      `,
+      options: ["4", "6", "8", "9"],
+      correct: 1, // 6 no total
+      hint: "Considere os 4 menores, o topo médio e o triângulo grande inteiro."
+    },
+    {
+      category: "Balança de Pesagem",
+      text: "Se 2 Círculos pesam 1 Quadrado, e 1 Quadrado + 1 Círculo pesam 1 Triângulo, quantos Círculos pesam 1 Triângulo?",
+      svg: `
+        <svg width="220" height="90" viewBox="0 0 220 90">
+          <circle cx="30" cy="45" r="14" fill="#f59e0b" />
+          <circle cx="65" cy="45" r="14" fill="#f59e0b" />
+          <text x="95" y="52" fill="#fff" font-size="20">=</text>
+          <rect x="120" y="31" width="28" height="28" fill="#38bdf8" />
+        </svg>
+      `,
+      options: ["2", "3", "4", "5"],
+      correct: 1, // 3
+      hint: "Substitua o quadrado por 2 círculos: 2 círculos + 1 círculo = 3 círculos."
+    },
+    {
+      category: "Sequências e Dedução",
+      text: "Qual é o próximo número na sequência lógica: 2, 6, 12, 20, 30, ...?",
+      svg: `
+        <svg width="200" height="60" viewBox="0 0 200 60">
+          <text x="100" y="38" text-anchor="middle" fill="#38bdf8" font-size="18" font-weight="bold">+4, +6, +8, +10, +?</text>
+        </svg>
+      `,
+      options: ["40", "42", "44", "46"],
+      correct: 1, // 42
+      hint: "A diferença aumenta de 2 em 2 (+4, +6, +8, +10, +12)."
+    },
+    {
+      category: "Lógica Espacial (Cubo)",
+      text: "Nesta planificação de dado, qual face é oposta à face de número 2?",
+      svg: `
+        <svg width="180" height="130" viewBox="0 0 180 130">
+          <g fill="#1e293b" stroke="#38bdf8" stroke-width="2">
+            <rect x="20" y="45" width="30" height="30"/>
+            <rect x="55" y="45" width="30" height="30"/>
+            <rect x="90" y="45" width="30" height="30"/>
+            <rect x="125" y="45" width="30" height="30"/>
+            <rect x="55" y="10" width="30" height="30"/>
+            <rect x="55" y="80" width="30" height="30"/>
+          </g>
+          <g fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">
+            <text x="70" y="30">1</text>
+            <text x="35" y="65">2</text>
+            <text x="70" y="65">3</text>
+            <text x="105" y="65">4</text>
+            <text x="140" y="65">5</text>
+            <text x="70" y="100">6</text>
+          </g>
+        </svg>
+      `,
+      options: ["3", "4", "5", "6"],
+      correct: 1, // 4 (salta uma face na mesma linha)
+      hint: "Faces em linha reta que pulam uma casa ficam em lados opostos."
+    }
+  ];
+
+  const achievements = [
+    { id: "first", icon: "🌱", title: "Primeiro Passo", desc: "Acertou o primeiro enigma", unlocked: false },
+    { id: "streak3", icon: "🔥", title: "Sequência de Fogo", desc: "3 acertos seguidos", unlocked: false },
+    { id: "fast", icon: "⚡", title: "Reflexo Rápido", desc: "Respondeu com mais de 70% do tempo", unlocked: false },
+    { id: "master", icon: "👑", title: "Mestre da Lógica", desc: "Alcançou 300 pontos", unlocked: false }
+  ];
+
+  let currentIdx = 0;
+  let score = 0;
+  let streak = 0;
+  let mode = 'classic';
+  let timerInterval = null;
+  const maxTime = 15;
+  let timeLeft = maxTime;
+
+  function renderAchievements() {
+    const list = document.getElementById("achievements-list");
+    list.innerHTML = "";
+    achievements.forEach(a => {
+      const badge = document.createElement("div");
+      badge.className = `badge-item ${a.unlocked ? 'unlocked' : ''}`;
+      badge.innerHTML = `<span>${a.icon}</span> <strong>${a.title}</strong>`;
+      badge.title = a.desc;
+      list.appendChild(badge);
+    });
+  }
+
+  function unlockAchievement(id) {
+    const a = achievements.find(item => item.id === id);
+    if (a && !a.unlocked) {
+      a.unlocked = true;
+      renderAchievements();
+    }
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    document.getElementById("btn-classic").classList.toggle("active", mode === 'classic');
+    document.getElementById("btn-time").classList.toggle("active", mode === 'time');
+    document.getElementById("timer-wrap").style.display = mode === 'time' ? 'block' : 'none';
+    resetTimer();
+    loadQuestion(currentIdx);
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timeLeft = maxTime;
+    const bar = document.getElementById("timer-bar");
+    bar.style.width = "100%";
+    bar.style.backgroundColor = "var(--correct)";
+    
+    if (mode === 'time') {
+      timerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        const pct = Math.max(0, (timeLeft / maxTime) * 100);
+        bar.style.width = pct + "%";
+
+        if (pct < 30) {
+          bar.style.backgroundColor = "var(--wrong)";
+        } else if (pct < 60) {
+          bar.style.backgroundColor = "var(--gold)";
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          handleTimeOut();
+        }
+      }, 100);
+    }
+  }
+
+  function handleTimeOut() {
+    streak = 0;
+    updateHUD();
+    document.getElementById("feedback").innerHTML = "<span style='color: var(--wrong)'>⏰ Tempo esgotado!</span>";
+    highlightOptions(-1);
+    document.getElementById("btn-next").style.display = "block";
+  }
+
+  function loadQuestion(idx) {
+    const q = challenges[idx];
+    document.getElementById("cat-label").innerText = q.category;
+    document.getElementById("question-text").innerText = q.text;
+    document.getElementById("svg-wrap").innerHTML = q.svg;
+    document.getElementById("feedback").innerText = "";
+    document.getElementById("btn-next").style.display = "none";
+
+    const grid = document.getElementById("options-grid");
+    grid.innerHTML = "";
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.className = "opt-btn";
+      btn.innerText = opt;
+      btn.onclick = () => checkAnswer(i);
+      grid.appendChild(btn);
+    });
+
+    resetTimer();
+  }
+
+  function highlightOptions(selectedIdx) {
+    const buttons = document.querySelectorAll(".opt-btn");
+    const q = challenges[currentIdx];
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.correct) {
+        btn.classList.add("correct");
+      } else if (i === selectedIdx) {
+        btn.classList.add("wrong");
+      }
+    });
+  }
+
+  function checkAnswer(selectedIdx) {
+    clearInterval(timerInterval);
+    const q = challenges[currentIdx];
+    const isCorrect = selectedIdx === q.correct;
+    highlightOptions(selectedIdx);
+
+    if (isCorrect) {
+      let earned = 100;
+      if (mode === 'time') {
+        earned += Math.round(timeLeft * 10);
+        if (timeLeft > maxTime * 0.7) {
+          unlockAchievement("fast");
+        }
+      }
+      score += earned;
+      streak += 1;
+      unlockAchievement("first");
+
+      if (streak >= 3) unlockAchievement("streak3");
+      if (score >= 300) unlockAchievement("master");
+
+      document.getElementById("feedback").innerHTML = `<span style="color: var(--correct)">✓ Correto! (+${earned} pts)</span>`;
+    } else {
+      streak = 0;
+      document.getElementById("feedback").innerHTML = `<span style="color: var(--wrong)">✗ Incorreto! ${q.hint}</span>`;
+    }
+
+    updateHUD();
+    document.getElementById("btn-next").style.display = "block";
+  }
+
+  function updateHUD() {
+    document.getElementById("score").innerText = score;
+    document.getElementById("streak").innerText = streak;
+  }
+
+  function nextQuestion() {
+    currentIdx = (currentIdx + 1) % challenges.length;
+    loadQuestion(currentIdx);
+  }
+
+  // Inicialização
+  renderAchievements();
+  loadQuestion(0);
+</script>
+
+</body>
+</html>
+
+
+
